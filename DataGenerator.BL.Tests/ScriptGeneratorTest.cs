@@ -12,13 +12,14 @@ namespace DataGenerator.BL.Tests
     [TestFixture]
     public class ScriptGeneratorTest
     {
-        private IScriptGenerator _generator;
+        private ScriptGenerator _generator;
 
         [SetUp]
         public void Init()
         {
             // Arrange
-            _generator = null;
+            IRepository repository = new RepositoryMock();
+            _generator = new ScriptGenerator(repository);
         }
 
         [Test]
@@ -55,6 +56,7 @@ namespace DataGenerator.BL.Tests
         }
 
         [Test]
+        [Repeat(10000)]
         public void GenerateUser_PasswordRequired()
         {
             // Act
@@ -77,6 +79,7 @@ namespace DataGenerator.BL.Tests
         }
 
         [Test]
+        [Repeat(10000)]
         public void GenerateUser_RegistrationDatePeriod()
         {
             // Act
@@ -121,6 +124,19 @@ namespace DataGenerator.BL.Tests
 
             // Assert
             Assert.That(result, Is.EqualTo(EXPECTED_RESULT));
+        }
+
+        [Test]
+        public void MergeLines_Test()
+        {
+            const string INSERT_LINE = "INSERT LINE";
+            string[] valueLines = { "VALUE LINE 1", "VALUE LINE 2" };
+            string expectedResult = 
+                string.Format("INSERT LINE{0}VALUE LINE 1{0},VALUE LINE 2{0}", Environment.NewLine);
+
+            string result = _generator.MergeLines(valueLines, INSERT_LINE);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
     }
